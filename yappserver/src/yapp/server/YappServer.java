@@ -12,7 +12,7 @@ import yapp.servlet.RootServlet;
 import yapp.servlet.SignupServlet;
 
 public class YappServer {
-	private static int PORT = 8080;
+	private static int PORT = 8050;
 	
 	public static void main(String args[]) throws Exception {
 		Logger logger = Logger.getLogger(YappServer.class.getName());
