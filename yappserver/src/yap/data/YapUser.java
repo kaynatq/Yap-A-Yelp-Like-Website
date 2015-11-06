@@ -4,14 +4,16 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import yap.sql.MySQLConnector;
 
 public class YapUser {
 	private String name;
-	private  String userID;
-	private  String password;
-	
+	private String userID;
+	private String password;
+
 	public YapUser() {
 		name = null;
 		userID = null;
@@ -34,6 +36,42 @@ public class YapUser {
 		this.userID = userID;
 	}
 
+	public boolean containsUpperLowerDigitSpChar() {
+		
+		boolean upperCase = false;
+		boolean lowerCase = false;
+		boolean digit = false;
+		boolean spChar = false;
+		Pattern p; Matcher m;
+		
+		p = Pattern.compile("^.*?[A-Z]+");
+		m = p.matcher(this.password);
+		if (m.find()) {
+			upperCase = true;
+		}
+		
+		p = Pattern.compile("^.*?[a-z]+");
+		m = p.matcher(this.password);
+		if (m.find()) {
+			lowerCase = true;
+		}
+		
+		p = Pattern.compile("^.*?[\\d]+");
+		m = p.matcher(this.password);
+		if (m.find()) {
+			digit = true;
+		}
+		
+		p = Pattern.compile("^.*?[^A-Za-z0-9]+");
+		m = p.matcher(this.password);
+		if (m.find()) {
+			spChar = true;
+		}
+		
+		if (upperCase && lowerCase && digit && spChar) return true;
+		return false;
+	}
+	
 	public String getPassword() {
 		return password;
 	}
@@ -46,6 +84,7 @@ public class YapUser {
 		if (userID == null || userID.isEmpty()) return false;
 		if (name == null || name.isEmpty()) return false;
 		if (password == null || password.isEmpty()) return false;
+		
 		
 		return true;
 	}

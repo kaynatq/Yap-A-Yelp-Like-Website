@@ -68,7 +68,20 @@ public class SignupServlet extends HttpServlet {
         	return;
         }
         
+        if (newUser.getPassword().length() < 8) {
+        	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
+        			"Yap :: Signup", getInputFormHtml("Signup for Yap", "Password should be minimum 8 characters.")));
+        	return;
+        }
+        
+        if (!newUser.containsUpperLowerDigitSpChar()) {
+        	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
+        			"Yap :: Signup", getInputFormHtml("Signup for Yap", "Password should contain at least "
+        					+ "1 uppercase letter, 1 lowercase letter, 1 digit and 1 special character. ")));
+        	return;
+        }
         String body = "";
+        
         try {
         	if (newUser.addToDB()) {
         		body = "Successfully added '" + newUser.getName() + "' as a Yap user."
