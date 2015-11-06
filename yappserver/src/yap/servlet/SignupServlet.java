@@ -1,4 +1,4 @@
-package yapp.servlet;
+package yap.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import yapp.data.YappUser;
+import yap.data.YapUser;
 
 /**
  * Servlet implementation class LoginServlet
@@ -56,7 +56,7 @@ public class SignupServlet extends HttpServlet {
 		response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
         
-        YappUser newUser = new YappUser();        
+        YapUser newUser = new YapUser();        
         
         newUser.setUserID(request.getParameter("userid"));
         newUser.setName(request.getParameter("username"));

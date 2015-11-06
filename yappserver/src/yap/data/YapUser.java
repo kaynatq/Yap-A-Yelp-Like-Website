@@ -1,18 +1,18 @@
-package yapp.data;
+package yap.data;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import yapp.sql.MySQLConnector;
+import yap.sql.MySQLConnector;
 
-public class YappUser {
+public class YapUser {
 	private String name;
 	private  String userID;
 	private  String password;
 	
-	public YappUser() {
+	public YapUser() {
 		name = null;
 		userID = null;
 		password = null;
@@ -50,8 +50,8 @@ public class YappUser {
 		return true;
 	}
 	
-	public static YappUser getUserWithUserId(String userID) {
-		YappUser user = new YappUser();		
+	public static YapUser getUserWithUserId(String userID) {
+		YapUser user = new YapUser();		
 		Connection con = null;
 		try {
 			con = MySQLConnector.getConnection();

@@ -1,4 +1,4 @@
-package yapp.servlet;
+package yap.servlet;
 
 public class ServletUtils {
 	public static String getHtmlForTitleAndBody(String title, String body) {

@@ -1,4 +1,4 @@
-package yapp.server;
+package yap.server;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -6,16 +6,16 @@ import java.util.logging.Logger;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
-import yapp.servlet.LoginServlet;
-import yapp.servlet.LogoutServlet;
-import yapp.servlet.RootServlet;
-import yapp.servlet.SignupServlet;
+import yap.servlet.LoginServlet;
+import yap.servlet.LogoutServlet;
+import yap.servlet.RootServlet;
+import yap.servlet.SignupServlet;
 
-public class YappServer {
+public class YapServer {
 	private static int PORT = 8050;
 	
 	public static void main(String args[]) throws Exception {
-		Logger logger = Logger.getLogger(YappServer.class.getName());
+		Logger logger = Logger.getLogger(YapServer.class.getName());
 		
 		Server server = new Server(PORT);
 		
@@ -28,10 +28,10 @@ public class YappServer {
         servhandler.addServlet(SignupServlet.class, "/signup");
         
         server.setHandler(servhandler);
-        logger.log(Level.INFO, "Starting YappServer...");
+        logger.log(Level.INFO, "Starting YapServer...");
         
         server.start();
-        logger.log(Level.INFO, "YappServer started...");
+        logger.log(Level.INFO, "YapServer started...");
         
         server.join();
 	}

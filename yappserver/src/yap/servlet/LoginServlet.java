@@ -1,4 +1,4 @@
-package yapp.servlet;
+package yap.servlet;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import yapp.data.YappUser;
+import yap.data.YapUser;
 
 /**
  * Servlet implementation class LoginServlet
@@ -80,7 +80,7 @@ public class LoginServlet extends HttpServlet {
         	return;
         }
         
-        YappUser user = YappUser.getUserWithUserId(userID);
+        YapUser user = YapUser.getUserWithUserId(userID);
         
         if (user == null || !password.equals(user.getPassword())) {
         	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(

@@ -1,4 +1,4 @@
-package yapp.servlet;
+package yap.servlet;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
