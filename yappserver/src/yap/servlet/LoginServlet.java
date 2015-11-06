@@ -57,11 +57,11 @@ public class LoginServlet extends HttpServlet {
 		
 		if (userID == null || userID.isEmpty() || userName == null || userName.isEmpty()) {
 			response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yapp :: Login",
-					getInputFormHtml("Login to Yapp", "")));
+					"Yap :: Login",
+					getInputFormHtml("Login to Yap", "")));
 		} else {
 			response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yapp :: Login", getBodyForSuccessfulLogin(userName)));			
+					"Yap :: Login", getBodyForSuccessfulLogin(userName)));			
 		}
 	}
 	
@@ -75,8 +75,8 @@ public class LoginServlet extends HttpServlet {
         
         if (userID == null || userID.isEmpty() || password == null || password.isEmpty()) {
         	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yapp :: Login",
-					getInputFormHtml("Login to Yapp", "Empty Fields are not allowed.")));
+					"Yap :: Login",
+					getInputFormHtml("Login to Yap", "Empty Fields are not allowed.")));
         	return;
         }
         
@@ -84,8 +84,8 @@ public class LoginServlet extends HttpServlet {
         
         if (user == null || !password.equals(user.getPassword())) {
         	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yapp :: Login",
-					getInputFormHtml("Login to Yapp", "Invalid Login Information.")));
+					"Yap :: Login",
+					getInputFormHtml("Login to Yap", "Invalid Login Information.")));
         	return;
         } else {
         	HttpSession session = request.getSession();
@@ -94,7 +94,7 @@ public class LoginServlet extends HttpServlet {
         	session.setAttribute("username", user.getName());
         	
         	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yapp :: Login", getBodyForSuccessfulLogin(user.getName())));
+					"Yap :: Login", getBodyForSuccessfulLogin(user.getName())));
         }
 	}
 

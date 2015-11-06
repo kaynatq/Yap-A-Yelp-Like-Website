@@ -47,8 +47,8 @@ public class SignupServlet extends HttpServlet {
 		response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-        		"Yapp :: Signup",
-        		getInputFormHtml("Signup for Yapp", "")));
+        		"Yap :: Signup",
+        		getInputFormHtml("Signup for Yap", "")));
 	}
 	
 	@Override
@@ -64,14 +64,14 @@ public class SignupServlet extends HttpServlet {
         
         if (!newUser.isValid()) {
         	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-        			"Yapp :: Signup", getInputFormHtml("Signup for Yapp", "Empty fields are not allowed.")));
+        			"Yap :: Signup", getInputFormHtml("Signup for Yap", "Empty fields are not allowed.")));
         	return;
         }
         
         String body = "";
         try {
         	if (newUser.addToDB()) {
-        		body = "Successfully added '" + newUser.getName() + "' as a Yapp user."
+        		body = "Successfully added '" + newUser.getName() + "' as a Yap user."
         				+ "<br>"
         				+ "You can try logging in now.";
         	}
@@ -79,7 +79,7 @@ public class SignupServlet extends HttpServlet {
 			body = ServletUtils.getFormattedErrorString("Error adding user: " + e.getMessage());
 		}
         
-        response.getWriter().println(ServletUtils.getHtmlForTitleAndBody("Yapp :: Signup", body));
+        response.getWriter().println(ServletUtils.getHtmlForTitleAndBody("Yap :: Signup", body));
 	}
 
 }

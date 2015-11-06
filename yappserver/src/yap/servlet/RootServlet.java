@@ -14,14 +14,14 @@ public class RootServlet extends HttpServlet {
 		response.setStatus(HttpServletResponse.SC_OK);
 		
 		String body = "<body>"
-				+ "<h1>Yapp Application</h1>"
+				+ "<h1>Yap Application</h1>"
 				+ "<table>"
 				+   "<tr><td><a href=\"login\">Login</a></td></tr>"
 				+   "</tr><td><a href=\"signup\">SignUp</a></td></tr>"
 				+ "</table>"
 				+ "</body>";
 		
-		response.getWriter().println(ServletUtils.getHtmlForTitleAndBody("Yapp", body));
+		response.getWriter().println(ServletUtils.getHtmlForTitleAndBody("Yap", body));
 	}
 
 }
