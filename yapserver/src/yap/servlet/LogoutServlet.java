@@ -25,7 +25,7 @@ public class LogoutServlet extends HttpServlet {
 		
 		if (userId == null || userId.isEmpty() || userName == null || userName.isEmpty()) {
 			response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yapp :: LogOut",
+					"Yap :: LogOut",
 					ServletUtils.getFormattedErrorString("No logged-in user found")));
 			return;
 		}
