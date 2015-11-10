@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import yap.data.YapBusiness;
+import yap.data.YapReview;
 import yap.sql.MySQLConnector;
 
 /**
@@ -62,13 +63,22 @@ public class BusinessServlet extends HttpServlet {
 	}
 
 	private static String viewAllBusiness(ArrayList<YapBusiness> businesses) {
+		YapReview yr = new YapReview();
 		String returnString = "";
-		returnString +=  "<table>";
+		returnString +=  "<table border=\"1\" cellpadding=\"10\">";
+		returnString += "<tr>" +
+				"<th>" + "Business Name" + "</th>" +
+				"<th>" + "City" + "</th>" +
+				"<th>" + "State" + "</th>" +
+				"<th>" + "Rating" + "</th>" + "</tr>";
 		for(YapBusiness business : businesses) {
-			returnString +=  "</tr><td><a href=\"reviews?businessID=" + business.getBusinessID() + "\">" + business.getName() +
-					"</a></td></tr>"+
-				  "<tr><td>City: " + business.getCity() + "</td></tr>" +
-				  "<tr><td>State: " + business.getState() + "</td></tr>";
+			returnString +=  "<tr>"
+					+ "<td><a href=\"reviews?businessID=" + business.getBusinessID()
+						+ "\">" + business.getName() + "</a></td>"
+					+ "<td>" + business.getCity() + "</td>"
+					+ "<td>" + business.getState() + "</td>"
+					+ "<td>" + yr.getAverageRating(business.getBusinessID()) + "</td>"
+					+ "</tr>";
 		}
 		returnString +=		"</table>";
 		return returnString;
@@ -80,6 +90,6 @@ public class BusinessServlet extends HttpServlet {
 		response.setStatus(HttpServletResponse.SC_OK);
 		ArrayList<YapBusiness> businesses = getBusinesses();
 		response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-				"Showing all business", viewAllBusiness(businesses)));
+				"Showing all businesses", viewAllBusiness(businesses)));
 	}
 }
