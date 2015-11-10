@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MySQLConnector {
-	// TODO: Get this from a config file.
+
 	private static final String USERNAME = "user49";
 	private static final String PASSWORD = "user49";
 	private static final String DATABASE = "user49";
