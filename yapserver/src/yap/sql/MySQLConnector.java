@@ -6,10 +6,10 @@ import java.sql.SQLException;
 
 public class MySQLConnector {
 	// TODO: Get this from a config file.
-	private static final String USERNAME = "root";
-	private static final String PASSWORD = "potafied";
+	private static final String USERNAME = "user49";
+	private static final String PASSWORD = "user49";
 	private static final String DATABASE = "user49";
-	private static final String MYSQL_HOST = "127.0.0.1";
+	private static final String MYSQL_HOST = "sql.cs.usfca.edu";
 	
 	public static Connection getConnection() throws SQLException {
 		Connection con = null;
