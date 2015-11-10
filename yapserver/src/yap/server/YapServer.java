@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
+import yap.servlet.BusinessServlet;
 import yap.servlet.LoginServlet;
 import yap.servlet.LogoutServlet;
 import yap.servlet.RootServlet;
@@ -16,9 +17,9 @@ public class YapServer {
 	
 	public static void main(String args[]) throws Exception {
 		Logger logger = Logger.getLogger(YapServer.class.getName());
-		
+
 		Server server = new Server(PORT);
-		
+
 		ServletContextHandler servhandler = new ServletContextHandler(ServletContextHandler.SESSIONS);        
         server.setHandler(servhandler);
  
@@ -26,7 +27,8 @@ public class YapServer {
         servhandler.addServlet(LoginServlet.class, "/login");
         servhandler.addServlet(LogoutServlet.class, "/logout");
         servhandler.addServlet(SignupServlet.class, "/signup");
-        
+        servhandler.addServlet(BusinessServlet.class, "/business");
+
         server.setHandler(servhandler);
         logger.log(Level.INFO, "Starting YapServer...");
         

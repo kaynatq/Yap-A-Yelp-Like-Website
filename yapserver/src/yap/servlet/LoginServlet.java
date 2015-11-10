@@ -41,6 +41,7 @@ public class LoginServlet extends HttpServlet {
 		return  "<table>" +
 				  "<tr><td>Logged in as: " + userName + "</td></tr>" +
 				  "<tr><td align=\"center\"><a href=\"logout\">Log Out</a></td></tr>" +
+				  "</tr><td><a href=\"business\">View Businesses</a></td></tr>" +
 				"</table>";
 	}
 	

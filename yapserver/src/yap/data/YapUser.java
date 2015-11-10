@@ -36,6 +36,14 @@ public class YapUser {
 		this.userID = userID;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
 	public boolean containsUpperLowerDigitSpChar() {
 		
 		boolean upperCase = false;
@@ -70,14 +78,6 @@ public class YapUser {
 		
 		if (upperCase && lowerCase && digit && spChar) return true;
 		return false;
-	}
-	
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 	
 	public boolean isValid() {
