@@ -13,17 +13,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import yap.data.YapBusiness;
 import yap.sql.MySQLConnector;
 
 /**
  * Servlet implementation class BusinessServlet
  */
-@WebServlet("/business")
-public class BusinessServlet extends HttpServlet {
-	
-	private static ArrayList<YapBusiness> getBusinesses() {
-		ArrayList<YapBusiness> businesses = new ArrayList<>();
+@WebServlet("/reviews" )
+public class ReviewServlet extends HttpServlet {
+	private static double total;
+	private static int count;
+	private static ArrayList<String> getReviews(String businessID) {
+		ArrayList<String> reviewText = new ArrayList<>();
 		Connection con = null;
 		try {
 			con = MySQLConnector.getConnection();
@@ -32,7 +32,8 @@ public class BusinessServlet extends HttpServlet {
 			Statement stmt = con.createStatement();
 
 			// execute a query, which returns a ResultSet object
-			ResultSet result = stmt.executeQuery("SELECT * FROM Business");
+			ResultSet result = stmt.executeQuery("SELECT * FROM Review WHERE businessID = '"
+					+ businessID + "'");
 
 			// iterate over the ResultSet
 			if (result.wasNull()) {
@@ -40,16 +41,12 @@ public class BusinessServlet extends HttpServlet {
 				return null;
 			}
 
+			total = 0.0;
+			count = 0;
 			while (result.next()) {
-				YapBusiness business = new YapBusiness();
-				business.setBusinessID(result.getString("businessID"));
-				business.setName(result.getString("name"));
-				business.setCity(result.getString("city"));
-				business.setState(result.getString("state"));
-				business.setNeighborhoods((result.getString("neighborhoods")));
-				business.setLongitude((result.getDouble("longitude")));
-				business.setLatitude(result.getDouble("latitude"));
-				businesses.add(business);
+				reviewText.add(result.getString("text"));
+				total += result.getDouble("rating");
+				count ++;
 			}	
 			
 			con.close();
@@ -58,18 +55,21 @@ public class BusinessServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		
-		return businesses;
+		return reviewText;
 	}
 
-	private static String viewAllBusiness(ArrayList<YapBusiness> businesses) {
+	private static String viewAllReviews(ArrayList<String> texts) {
 		String returnString = "";
 		returnString +=  "<table>";
-		for(YapBusiness business : businesses) {
-			returnString +=  "</tr><td><a href=\"reviews?businessID=" + business.getBusinessID() + "\">" + business.getName() +
-					"</a></td></tr>"+
-				  "<tr><td>City: " + business.getCity() + "</td></tr>" +
-				  "<tr><td>State: " + business.getState() + "</td></tr>";
+		if (texts.isEmpty()) {
+			returnString += "<tr><td>" +
+					"No reviews" +
+					"</td></tr>";
 		}
+		for(String text: texts) {
+			returnString +=  "<tr><td>" + text + "</td></tr>";
+		}
+		returnString +=  "<tr><td>" + "Average rating: " + total/count + "</td></tr>";
 		returnString +=		"</table>";
 		return returnString;
 	}
@@ -78,8 +78,8 @@ public class BusinessServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
-		ArrayList<YapBusiness> businesses = getBusinesses();
+		ArrayList<String> texts = getReviews(request.getParameter("businessID"));
 		response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-				"Showing all business", viewAllBusiness(businesses)));
+				"Showing all reviews", viewAllReviews(texts)));
 	}
 }
