@@ -78,6 +78,7 @@ public class YapReview {
 			e1.printStackTrace();
 		}
 		returnString += "</table>";
+		returnString += "<table><tr><td><a href=\"addreview?businessID=" + businessID + "\">Add Review</a></td></tr></table>";
 		titleAndBody.add(returnString);
 		return titleAndBody;
 	}
