@@ -16,7 +16,7 @@ import yap.servlet.RootServlet;
 import yap.servlet.SignupServlet;
 
 public class YapServer {
-	private static int PORT = 12000;
+	private static int PORT = 8050;
 	
 	public static void main(String args[]) throws Exception {
 		Logger logger = Logger.getLogger(YapServer.class.getName());
