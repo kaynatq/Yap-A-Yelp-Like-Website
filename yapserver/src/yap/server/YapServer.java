@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
+import yap.servlet.AddBusinessServlet;
 import yap.servlet.AddReviewServlet;
 import yap.servlet.BusinessServlet;
 import yap.servlet.LoginServlet;
@@ -32,6 +33,7 @@ public class YapServer {
         servhandler.addServlet(BusinessServlet.class, "/business");
         servhandler.addServlet(ReviewServlet.class, "/reviews");
         servhandler.addServlet(AddReviewServlet.class, "/addreview");
+        servhandler.addServlet(AddBusinessServlet.class, "/addbusiness");
 
         server.setHandler(servhandler);
         logger.log(Level.INFO, "Starting YapServer...");

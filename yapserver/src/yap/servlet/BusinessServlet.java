@@ -23,7 +23,7 @@ import yap.sql.MySQLConnector;
 @WebServlet("/business")
 public class BusinessServlet extends HttpServlet {
 	
-	private static ArrayList<YapBusiness> getBusinesses() {
+	private static ArrayList<YapBusiness> getBusinesses(String sortby) {
 		ArrayList<YapBusiness> businesses = new ArrayList<>();
 		Connection con = null;
 		try {
@@ -31,9 +31,15 @@ public class BusinessServlet extends HttpServlet {
 
 			// create a statement object
 			Statement stmt = con.createStatement();
+			
+			String query = "SELECT * FROM Business";
+			
+			if (sortby != null) {
+				query = query + " ORDER BY " + sortby;
+			}
 
 			// execute a query, which returns a ResultSet object
-			ResultSet result = stmt.executeQuery("SELECT * FROM Business");
+			ResultSet result = stmt.executeQuery(query);
 
 			// iterate over the ResultSet
 			if (result.wasNull()) {
@@ -67,10 +73,10 @@ public class BusinessServlet extends HttpServlet {
 		String returnString = "";
 		returnString +=  "<table border=\"1\" cellpadding=\"10\">";
 		returnString += "<tr>" +
-				"<th>" + "Business Name" + "</th>" +
-				"<th>" + "City" + "</th>" +
-				"<th>" + "State" + "</th>" +
-				"<th>" + "Rating" + "</th>" + "</tr>";
+				"<th><a href=\"/business?sortby=name\"> Business Name </a></th>" +
+				"<th><a href=\"/business?sortby=city\"> City </a></th>" +
+				"<th><a href=\"/business?sortby=state\"> State </a></th>" +
+				"<th>Rating</th>" + "</tr>";
 		for(YapBusiness business : businesses) {
 			returnString +=  "<tr>"
 					+ "<td><a href=\"reviews?businessID=" + business.getBusinessID()
@@ -81,6 +87,7 @@ public class BusinessServlet extends HttpServlet {
 					+ "</tr>";
 		}
 		returnString +=		"</table>";
+		returnString += "<table><tr><td><a href=\"addbusiness\">Add Business</a></td></tr></table>";
 		return returnString;
 	}
 	
@@ -88,7 +95,10 @@ public class BusinessServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
-		ArrayList<YapBusiness> businesses = getBusinesses();
+		
+		String sortby = request.getParameter("sortby");
+		
+		ArrayList<YapBusiness> businesses = getBusinesses(sortby);
 		response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
 				"Showing all businesses", viewAllBusiness(businesses)));
 	}
