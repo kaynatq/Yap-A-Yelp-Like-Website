@@ -118,6 +118,7 @@ public class AddBusinessServlet extends HttpServlet {
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
 		
+		double latitude = 0.0, longitude = 0.0;
 		String businessID = (String) request.getParameter("businessid");
 		String businessName = (String) request.getParameter("businessname");
 		String city = (String) request.getParameter("city");
@@ -130,8 +131,14 @@ public class AddBusinessServlet extends HttpServlet {
 					"Please provide the empty fields"));		
 			return;
 		}
-		double latitude = Double.parseDouble(request.getParameter("latitude"));
-		double longitude = Double.parseDouble(request.getParameter("longitude"));
+		try{
+		latitude = Double.parseDouble(request.getParameter("latitude"));
+		longitude = Double.parseDouble(request.getParameter("longitude"));
+		}catch(NumberFormatException ne){
+			response.getWriter().println(ServletUtils.getFormattedErrorString(
+					"Please provide valid longitude and latitude"));		
+			return;
+		}
 		String neighborhoods = (String) request.getParameter("neighborhoods");
 		
 		if (neighborhoods == null) {
