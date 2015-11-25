@@ -122,15 +122,24 @@ public class AddBusinessServlet extends HttpServlet {
 		String businessName = (String) request.getParameter("businessname");
 		String city = (String) request.getParameter("city");
 		String state = (String) request.getParameter("state");
+		if(businessID == null || businessID.isEmpty() || 
+				businessName == null || businessName.isEmpty() ||
+				city == null || city.isEmpty() ||
+				state == null || state.isEmpty()) {
+			response.getWriter().println(ServletUtils.getFormattedErrorString(
+					"Please provide the empty fields"));		
+			return;
+		}
 		double latitude = Double.parseDouble(request.getParameter("latitude"));
 		double longitude = Double.parseDouble(request.getParameter("longitude"));
 		String neighborhoods = (String) request.getParameter("neighborhoods");
+		
 		if (neighborhoods == null) {
 			neighborhoods = "";
 		}
-				
+					
 		response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yap :: AddBusiness", getBodyForSuccessfulAddBusiness(businessID, businessName, city, state, latitude, longitude, neighborhoods)));			
-		
+				"Yap :: AddBusiness", getBodyForSuccessfulAddBusiness(businessID, businessName, city, state, latitude, longitude, neighborhoods)));			
+			
 	}	
 }

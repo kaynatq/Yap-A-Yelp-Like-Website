@@ -95,8 +95,11 @@ public class AddReviewServlet extends HttpServlet {
 		HttpSession session = request.getSession();
 		String userID = (String) session.getAttribute("userid");
 		
+		double rating = 0.0;
 		String text = (String) request.getParameter("reviewtext");
-		double rating = Double.parseDouble(request.getParameter("rating"));
+		String ratingParameter = (String) request.getParameter("rating");
+		if (!ratingParameter.isEmpty() && ratingParameter != null)
+			rating = Double.parseDouble(request.getParameter("rating"));
 		String businessID = (String) request.getParameter("businessID");
 		
 		if (text == null || text.isEmpty()) {
@@ -105,7 +108,7 @@ public class AddReviewServlet extends HttpServlet {
 					getInputFormHtml("Adding review", "Please write a review", businessID)));
 		}		
 		
-		if (rating > 5 || rating < 1) {
+		if (rating > 5 || rating < 1 || rating == 0.0) {
 			response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
 					"Yap :: AddReview",
 					getInputFormHtml("Adding review", "Please provide a rating between 1 to 5", businessID)));
