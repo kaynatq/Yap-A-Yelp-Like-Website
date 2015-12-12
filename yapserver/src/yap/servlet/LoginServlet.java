@@ -8,95 +8,117 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+import org.stringtemplate.v4.STRawGroupDir;
+
 import yap.data.YapUser;
+import yap.utils.SessionConstants;
+import yap.utils.TemplateConstants;
 
 /**
  * Servlet implementation class LoginServlet
  */
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
-	private static String getInputFormHtml(String header, String error) {
-		String form = "<h1>" + header + "</h1>"
-				+ ServletUtils.getFormattedErrorString(error)
-				+ "<form action=\"login\" method=\"post\">"
-				+ "<table>"
-				+   "<tr>"
-				+     "<th>User Id</th>"
-				+     "<td><input type=\"text\" name=\"userid\" ></td>"
-				+   "</tr>"
-				+   "<tr>"
-				+     "<th>Password</th>"
-				+     "<td><input type=\"password\" name=\"password\" ></td>"
-				+   "</tr>"
-				+   "<tr>"
-				+     "<td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Login\"></td>"
-				+   "</tr>"
-				+ "</table>"
-				+ "</form>";
-		
-		return form;
-	}
-	
-	private static String getBodyForSuccessfulLogin(String userName) {
-		return  "<table>" +
-				  "<tr><td>Logged in as: " + userName + "</td></tr>" +
-				  "<tr><td align=\"center\"><a href=\"logout\">Log Out</a></td></tr>" +
-				  "</tr><td><a href=\"business\">View Businesses</a></td></tr>" +
-				"</table>";
-	}
-	
-	
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setContentType("text/html");
-		response.setStatus(HttpServletResponse.SC_OK);
-		
-		HttpSession session = request.getSession();
-		
-		String userName = (String) session.getAttribute("username");
-		String userID = (String) session.getAttribute("userid");
-		
-		if (userID == null || userID.isEmpty() || userName == null || userName.isEmpty()) {
-			response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yap :: Login",
-					getInputFormHtml("Login to Yap", "")));
+	private static String getBodyForLoginForm(String error) {
+		STGroup templates = new STRawGroupDir("WebContent/Templates", '$', '$');
+
+		ST jumboHeader = templates.getInstanceOf(TemplateConstants.JUMBO_HEADER_PAGE);
+		jumboHeader.add(TemplateConstants.HEADER_TITLE, "YapServer");
+		jumboHeader.add(TemplateConstants.HEADER_TEXT, "The home made Yelp server.");
+
+		ST body = templates.getInstanceOf(TemplateConstants.LOGIN_FORM_PAGE);
+		body.add(TemplateConstants.HEAD, jumboHeader.render());
+		if (error == null) {
+			body.add("has_error", false);
 		} else {
-			response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yap :: Login", getBodyForSuccessfulLogin(userName)));			
+			body.add("has_error", true);
+			body.add("error_text", error);
 		}
-	}
-	
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
-        
-        String userID = request.getParameter("userid");
-        String password = request.getParameter("password");
-        
-        if (userID == null || userID.isEmpty() || password == null || password.isEmpty()) {
-        	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yap :: Login",
-					getInputFormHtml("Login to Yap", "Empty Fields are not allowed.")));
-        	return;
-        }
-        
-        YapUser user = YapUser.getUserWithUserId(userID);
-        
-        if (user == null || !password.equals(user.getPassword())) {
-        	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yap :: Login",
-					getInputFormHtml("Login to Yap", "Invalid Login Information.")));
-        	return;
-        } else {
-        	HttpSession session = request.getSession();
-        	
-        	session.setAttribute("userid", user.getUserID());
-        	session.setAttribute("username", user.getName());
-        	
-        	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yap :: Login", getBodyForSuccessfulLogin(user.getName())));
-        }
+
+		ST loginPage = templates.getInstanceOf(TemplateConstants.FULL_PAGE);
+		loginPage.add(TemplateConstants.TITLE, "..::Yap::Login..");
+		loginPage.add(TemplateConstants.BODY, body.render());
+
+		return loginPage.render();
 	}
 
+	private static String getBodyForSuccessfulLogin(String userName) {
+		STGroup templates = new STRawGroupDir("WebContent/Templates", '$', '$');
+
+		ST jumboHeader = templates.getInstanceOf(TemplateConstants.JUMBO_HEADER_PAGE);
+		jumboHeader.add(TemplateConstants.HEADER_TITLE, "YapServer");
+		jumboHeader.add(TemplateConstants.HEADER_TEXT, "The home made Yelp server.");
+
+		ST body = templates.getInstanceOf(TemplateConstants.LOGIN_SUCCESS_PAGE);
+		body.add(TemplateConstants.HEAD, jumboHeader.render());
+		body.add("username", userName);
+
+		ST loginPage = templates.getInstanceOf(TemplateConstants.FULL_PAGE);
+		loginPage.add(TemplateConstants.TITLE, "..::Yap::Login..");
+		loginPage.add(TemplateConstants.BODY, body.render());
+
+		return loginPage.render();
+		/*
+		 * return "<table>" + "<tr><td>Logged in as: " + userName + "</td></tr>"
+		 * + "<tr><td align=\"center\"><a href=\"logout\">Log Out</a></td></tr>"
+		 * + "</tr><td><a href=\"business\">View Businesses</a></td></tr>" +
+		 * "</table>";
+		 */
+	}
+
+	private boolean isUserLoggedIn(String userName, String userId) {
+		if (userId == null || userId.isEmpty())
+			return false;
+		if (userName == null || userName.isEmpty())
+			return false;
+
+		return true;
+	}
+
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		response.setContentType("text/html");
+		response.setStatus(HttpServletResponse.SC_OK);
+
+		HttpSession session = request.getSession();
+		String userName = (String) session.getAttribute(SessionConstants.USERNAME);
+		String userID = (String) session.getAttribute(SessionConstants.USERID);
+
+		if (!isUserLoggedIn(userName, userID)) {
+			response.getWriter().print(getBodyForLoginForm(null));
+		} else {
+			response.getWriter().print(getBodyForSuccessfulLogin(userName));
+		}
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		response.setContentType("text/html");
+		response.setStatus(HttpServletResponse.SC_OK);
+
+		String userID = request.getParameter("userid");
+		String password = request.getParameter("password");
+		
+		if (userID == null || userID.isEmpty() || password == null || password.isEmpty()) {
+			response.getWriter().print(getBodyForLoginForm("Empty Fields are not allowed."));
+			return;
+		}
+
+		YapUser user = YapUser.getUserWithUserId(userID);
+		if (user == null || !password.equals(user.getPassword())) {
+			response.getWriter().print(getBodyForLoginForm("Invalid Login Information."));
+			return;
+		}
+
+		HttpSession session = request.getSession();
+
+		session.setAttribute(SessionConstants.USERID, user.getUserID());
+		session.setAttribute(SessionConstants.USERNAME, user.getName());
+
+		response.getWriter().print(getBodyForSuccessfulLogin(user.getName()));
+	}
 }
