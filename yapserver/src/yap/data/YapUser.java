@@ -76,7 +76,7 @@ public class YapUser {
 			spChar = true;
 		}
 		
-		if (upperCase && lowerCase && digit && spChar) return true;
+		if (upperCase && lowerCase && (digit || spChar)) return true;
 		return false;
 	}
 	
