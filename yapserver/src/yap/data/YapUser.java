@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import yap.sql.MySQLAccessor;
 import yap.sql.MySQLConnector;
 
 public class YapUser {
@@ -76,7 +77,7 @@ public class YapUser {
 			spChar = true;
 		}
 		
-		if (upperCase && lowerCase && (digit || spChar)) return true;
+		if (upperCase && lowerCase && digit && spChar) return true;
 		return false;
 	}
 	
@@ -138,5 +139,17 @@ public class YapUser {
 		con.close();
 
 		return affected_rows == 1;
-	}	
+	}
+	
+	public static String getUserNameWithUserId(String userId) {
+		MySQLAccessor sqlA = new MySQLAccessor();
+		
+		sqlA.InvokeParametrizedQuery("SELECT name from User where userID=?", userId);
+		while (sqlA.Next()) {
+			return sqlA.getString("name");
+		}
+		sqlA.Close();
+		
+		return "";
+	}
 }
