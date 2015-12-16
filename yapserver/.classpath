@@ -5,5 +5,7 @@
 	<classpathentry kind="lib" path="lib/jetty-all-server-8.1.18.v20150929.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.37.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/antlr-runtime-4.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/ST-4.0.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -15,67 +15,33 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+import org.stringtemplate.v4.STRawGroupDir;
+
 import yap.sql.MySQLConnector;
+import yap.utils.TemplateConstants;
 
 /**
  * Servlet implementation class BusinessServlet
  */
 @WebServlet("/addbusiness")
 public class AddBusinessServlet extends HttpServlet {
-	
-	private static String getInputFormHtml(String header, String error) {
-		String form = "<h1>" + header + "</h1>"
-				+ ServletUtils.getFormattedErrorString(error)
-				+ "<form action=\"addbusiness\" method=\"post\">"
-				+ "<table>"
-				+   "<tr>"
-				+     "<th>Business ID</th>"
-				+     "<td><input type=\"text\" name=\"businessid\" ></td>"
-				+   "</tr>"
-				+   "<tr>"
-				+     "<th>Business Name</th>"
-				+     "<td><input type=\"text\" name=\"businessname\" ></td>"
-				+   "</tr>"
-				
-				+   "<tr>"
-				+     "<th>City</th>"
-				+     "<td><input type=\"text\" name=\"city\" ></td>"
-				+   "</tr>"
-				
-				+   "<tr>"
-				+     "<th>State</th>"
-				+     "<td><input type=\"text\" name=\"state\" ></td>"
-				+   "</tr>"
-				
-				+   "<tr>"
-				+     "<th>latitude</th>"
-				+     "<td><input type=\"text\" name=\"latitude\" ></td>"
-				+   "</tr>"
-				
-				+   "<tr>"
-				+     "<th>longitude</th>"
-				+     "<td><input type=\"text\" name=\"longitude\" ></td>"
-				+   "</tr>"
-
-				+   "<tr>"
-				+     "<th>neighborhoods</th>"
-				+     "<td><input type=\"text\" name=\"neighborhoods\" ></td>"
-				+   "</tr>"
-
-				+   "<tr>"
-				+     "<td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Add Business\"></td>"
-				+   "</tr>"
-				+ "</table>"
-				+ "</form>";
+	private static String getInputFormHtml() {
+		STGroup templates = new STRawGroupDir("WebContent/Templates", '$', '$');
 		
-		return form;
+		ST body = templates.getInstanceOf(TemplateConstants.ADD_BUSINESS_PAGE);
+		
+		ST businessListPage = templates.getInstanceOf(TemplateConstants.FULL_PAGE);
+		businessListPage.add(TemplateConstants.TITLE, "..::Yap::Business..");
+		businessListPage.add(TemplateConstants.BODY, body.render());
+		
+		return businessListPage.render();
 	}
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-        		"Yap :: Add Business",
-        		getInputFormHtml("Add a business", "")));
+        response.getWriter().print(getInputFormHtml());
 	}
 
 	private String getBodyForSuccessfulAddBusiness(String businessID, String businessName, 
@@ -97,7 +63,6 @@ public class AddBusinessServlet extends HttpServlet {
 			  + "'" + latitude + "',"
 			  + "'" + longitude + "',"
 			  + "'" + neighborhoods + "')";
-			System.out.println(msqlStatement);
 			
 			// execute an update.
 			stmt.executeUpdate(msqlStatement);

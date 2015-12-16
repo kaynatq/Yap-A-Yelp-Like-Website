@@ -1,111 +1,159 @@
 package yap.data;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
-import yap.sql.MySQLConnector;
+import java.util.Date;
+import yap.sql.MySQLAccessor;
 
 public class YapReview {
-	private static double total;
-	private static int count;
-	private Connection con;
+	public static int REVIEW_PER_PAGE = 2;
+	
+	private int reviewId;
+	private Double rating;
+	private Date reviewDate;
+	private String userId;
+	private String userName;
+	private String text;
+	private String businessId;
+	
 	public YapReview() {}
 	
-	private ResultSet queryResult(String query) {
-		ResultSet result = null;
-		try {
-			con = MySQLConnector.getConnection();
+	public int getReviewId() {
+		return reviewId;
+	}
 
-			// create a statement object
-			Statement stmt = con.createStatement();
+	public void setReviewId(int reviewId) {
+		this.reviewId = reviewId;
+	}
 
-			// execute a query, which returns a ResultSet object
-			result = stmt.executeQuery(query);
-			if(result.wasNull()) {
-				return null;
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public double getRating() {
+		return rating;
+	}
+
+	public void setRating(double rating) {
+		DecimalFormat twoDForm = new DecimalFormat("#.##");
+		this.rating = Double.valueOf(twoDForm.format(rating));
+	}
+
+	public String getReviewDate() {
+		DateFormat df = new SimpleDateFormat("MMM dd, yyyy");
+		return df.format(reviewDate);
+	}
+
+	public void setReviewDate(Date reviewDate) {
+		this.reviewDate = reviewDate;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public String getBusinessId() {
+		return businessId;
+	}
+
+	public void setBusinessId(String businessId) {
+		this.businessId = businessId;
+	}
+	
+	public static ArrayList<YapReview> getReviewsForBusiness(String businessID, Integer start) {
+		ArrayList<YapReview> reviews = new ArrayList<>();
+		
+		MySQLAccessor sqlAccessor = new MySQLAccessor();
+		sqlAccessor.InvokeParametrizedQuery(
+				"SELECT * FROM Review WHERE businessID=? LIMIT " + start + "," + YapReview.REVIEW_PER_PAGE,
+				businessID);
+		
+		while (sqlAccessor.Next()) {
+			YapReview r = new YapReview();
+			r.setUserId(sqlAccessor.getString("userID"));
+			r.setUserName(YapUser.getUserNameWithUserId(r.getUserId()));
+			r.setRating(sqlAccessor.getDouble("rating"));
+			r.setReviewDate(sqlAccessor.getDate("date"));
+			r.setText(sqlAccessor.getString("text"));
+			r.setBusinessId(sqlAccessor.getString("businessID"));
+			
+			reviews.add(r);
+		}	
+
+		sqlAccessor.Close();
+		return reviews;
+	}
+	
+	public static Double getRatingForBusiness(String businessID) {
+		MySQLAccessor sqlAccessor = new MySQLAccessor();
+		double total = 0.0;
+		int count = 0;
+		
+		sqlAccessor.InvokeParametrizedQuery(
+				"SELECT rating FROM Review WHERE businessID=?",
+				businessID);
+		while (sqlAccessor.Next()) {
+			count++;
+			total += sqlAccessor.getDouble("rating");
 		}
-		return result;		
+		sqlAccessor.Close();
+		
+		return count == 0 ? 0.0 : total / count;
 	}
 	
-	public ArrayList<String> viewAllReviews(ArrayList<Integer> reviewIDs, String businessID) {
-		ArrayList<String> titleAndBody = new ArrayList<>();
-		String query = "SELECT name FROM Business WHERE businessID='" + businessID + "'";
-		String returnString = "";
-		ResultSet result = queryResult(query);
-		String name = "";
-		String text = "";
-		double rating;
-		try {
-			result.next();
-			name = result.getString("name");
-			con.close();
-			titleAndBody.add("Yap :: " + name);
-			returnString += "<table border=\"1\" cellpadding=\"10\">";
-			returnString += "<h1>" + name + "</h1>";
-			if (reviewIDs.isEmpty()) {
-				returnString += "<tr><td>" + "No reviews" + "</td></tr>";
-			}
-			else {
-				returnString += "<h2>Average Rating: " + getAverageRating(businessID) +  "</h2>"
-						+ "<h2>Reviews</h2>";
-				for (Integer reviewID : reviewIDs) {
-					query = "SELECT userID, rating, text FROM Review WHERE reviewID = '" + reviewID + "'";
-					result = queryResult(query);
-					result.next();
-					name = result.getString("userID");
-					rating = result.getDouble("rating");
-					text = result.getString("text");
-					con.close();
-					
-					query = "SELECT name from User where userID = '" + name + "'";
-					result = queryResult(query);
-					result.next();
-					name = result.getString("name");
-					con.close();
-					
-					returnString += "<tr><td> " + name + "</td>" + "<td>Rating : " + rating + "</td></tr>" +
-					"<tr><td colspan=\"2\">" + text + "</td></tr>";
-				}
-			}
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
-		returnString += "</table>";
-		returnString += "<table><tr><td><a href=\"addreview?businessID=" + businessID + "\">Add Review</a></td></tr></table>";
-		titleAndBody.add(returnString);
-		return titleAndBody;
+	public static int getReviewCountForBusiness(String businessId) {
+		return MySQLAccessor.getCount(
+				"SELECT count(*) as total from Review where businessID=?",
+				businessId,
+				"total");
 	}
 	
-	public ArrayList<Integer> getReviewIDs(String businessID) {
-		ArrayList<Integer> reviewIDs = new ArrayList<>();
-		String query = "SELECT * FROM Review WHERE businessID = '" + businessID + "'";
-		ResultSet result = queryResult(query);
-			total = 0.0;
-			count = 0;
-			try {
-				while (result.next()) {
-					reviewIDs.add(result.getInt("reviewID"));
-					total += result.getDouble("rating");
-					count ++;
-				}
-			con.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}	
-			return reviewIDs;
+	public static int getReviewCountForQuery(String query) {
+		return MySQLAccessor.getCount(
+				"SELECT count(*) as total from Review where text LIKE ?",
+				"%" + query + "%",
+				"total");
 	}
-	
-	public double getAverageRating(String businessID) {
-		getReviewIDs(businessID);
-		if (count == 0) return 0.0;
-		return total/count;
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public static ArrayList<YapReview> getReviewsForQuery(String query, int start) {
+		ArrayList<YapReview> reviews = new ArrayList<>();
+		
+		MySQLAccessor sqlAccessor = new MySQLAccessor();
+		sqlAccessor.InvokeParametrizedQuery(
+				"SELECT * FROM Review WHERE text LIKE ? LIMIT " + start + "," + YapReview.REVIEW_PER_PAGE,
+				"%" + query + "%");
+		
+		while (sqlAccessor.Next()) {
+			YapReview r = new YapReview();
+			r.setUserId(sqlAccessor.getString("userID"));
+			r.setUserName(YapUser.getUserNameWithUserId(r.getUserId()));
+			r.setRating(sqlAccessor.getDouble("rating"));
+			r.setReviewDate(sqlAccessor.getDate("date"));
+			r.setText(sqlAccessor.getString("text"));
+			r.setBusinessId(sqlAccessor.getString("businessID"));
+			
+			reviews.add(r);
+		}	
+
+		sqlAccessor.Close();
+		return reviews;
 	}
 }

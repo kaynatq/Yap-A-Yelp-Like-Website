@@ -1,5 +1,10 @@
 package yap.data;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+
+import yap.sql.MySQLAccessor;
+
 public class YapBusiness {
 
 	private String businessID;
@@ -9,6 +14,7 @@ public class YapBusiness {
 	private String neighborhoods;
 	private double latitude;
 	private double longitude;
+	private double rating;
 	
 	/**
 	 * Default Constructor
@@ -77,6 +83,66 @@ public class YapBusiness {
 	
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
+	}
+
+	public double getRating() {
+		return rating;
+	}
+
+	public void setRating(double rating) {
+		DecimalFormat twoDForm = new DecimalFormat("#.#");
+		this.rating = Double.valueOf(twoDForm.format(rating));
+	}
+	
+	public static YapBusiness getBusinessWithBusinessId(String businessId) {
+		YapBusiness b = null;
+		
+		MySQLAccessor sqlA = new MySQLAccessor();
+		sqlA.InvokeParametrizedQuery("SELECT * from Business WHERE businessID=?", businessId);		
+		
+		while (sqlA.Next()) {
+			b = new YapBusiness();
+			b.setName(sqlA.getString("name"));
+			b.setCity(sqlA.getString("city"));
+			b.setState(sqlA.getString("state"));
+			b.setLatitude(sqlA.getDouble("latitude"));
+			b.setLongitude(sqlA.getDouble("longitude"));
+			b.setNeighborhoods(sqlA.getString("neighborhoods"));
+			
+			b.setRating(YapReview.getRatingForBusiness(businessId));
+			
+			break;
+		}
+		
+		sqlA.Close();
+		
+		return b;
+	}
+	
+	public static ArrayList<YapBusiness> getBusinesses(String sortby) {
+		ArrayList<YapBusiness> businesses = new ArrayList<>();
+		
+		String query = "SELECT * FROM Business";
+		if (sortby != null) {
+			query += " ORDER BY " + sortby;
+		}
+		
+		MySQLAccessor sqlAccessor = new MySQLAccessor();
+		sqlAccessor.InvokeQuery(query);
+		while (sqlAccessor.Next()) {
+			YapBusiness business = new YapBusiness();
+			business.setBusinessID(sqlAccessor.getString("businessID"));
+			business.setName(sqlAccessor.getString("name"));
+			business.setCity(sqlAccessor.getString("city"));
+			business.setState(sqlAccessor.getString("state"));
+			business.setNeighborhoods((sqlAccessor.getString("neighborhoods")));
+			business.setLongitude((sqlAccessor.getDouble("longitude")));
+			business.setLatitude(sqlAccessor.getDouble("latitude"));
+			businesses.add(business);
+		}
+		sqlAccessor.Close();		
+		
+		return businesses;
 	}
 
 }

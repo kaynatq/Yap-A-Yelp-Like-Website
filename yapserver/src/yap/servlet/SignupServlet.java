@@ -77,7 +77,7 @@ public class SignupServlet extends HttpServlet {
         if (!newUser.containsUpperLowerDigitSpChar()) {
         	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
         			"Yap :: Signup", getInputFormHtml("Signup for Yap", "Password should contain at least "
-        					+ "1 uppercase letter, 1 lowercase letter, 1 digit or special character. ")));
+        					+ "1 uppercase letter, 1 lowercase letter, 1 digit and 1 special character. ")));
         	return;
         }
         String body = "";

@@ -21,17 +21,11 @@ public class RootServlet extends HttpServlet {
 		
 		STGroup templates = new STRawGroupDir("WebContent/Templates", '$', '$');
 		
-		ST jumboHeader = templates.getInstanceOf(TemplateConstants.JUMBO_HEADER_PAGE);		
-		jumboHeader.add(TemplateConstants.HEADER_TITLE, "YapServer");
-		jumboHeader.add(TemplateConstants.HEADER_TEXT, "The home made Yelp server.");
-		
 		ST body = templates.getInstanceOf(TemplateConstants.ROOT_BODY_PAGE);
-		body.add("header", jumboHeader.render());
 		
 		ST rootPage = templates.getInstanceOf(TemplateConstants.FULL_PAGE);
 		rootPage.add(TemplateConstants.TITLE, "..::Yap::Home..");
 		rootPage.add(TemplateConstants.BODY, body.render());
-		
 		
 		response.getWriter().append(rootPage.render());
 	}

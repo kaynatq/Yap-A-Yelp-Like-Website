@@ -24,12 +24,7 @@ public class LoginServlet extends HttpServlet {
 	private static String getBodyForLoginForm(String error) {
 		STGroup templates = new STRawGroupDir("WebContent/Templates", '$', '$');
 
-		ST jumboHeader = templates.getInstanceOf(TemplateConstants.JUMBO_HEADER_PAGE);
-		jumboHeader.add(TemplateConstants.HEADER_TITLE, "YapServer");
-		jumboHeader.add(TemplateConstants.HEADER_TEXT, "The home made Yelp server.");
-
 		ST body = templates.getInstanceOf(TemplateConstants.LOGIN_FORM_PAGE);
-		body.add(TemplateConstants.HEAD, jumboHeader.render());
 		if (error == null) {
 			body.add("has_error", false);
 		} else {
@@ -47,12 +42,7 @@ public class LoginServlet extends HttpServlet {
 	private static String getBodyForSuccessfulLogin(String userName) {
 		STGroup templates = new STRawGroupDir("WebContent/Templates", '$', '$');
 
-		ST jumboHeader = templates.getInstanceOf(TemplateConstants.JUMBO_HEADER_PAGE);
-		jumboHeader.add(TemplateConstants.HEADER_TITLE, "YapServer");
-		jumboHeader.add(TemplateConstants.HEADER_TEXT, "The home made Yelp server.");
-
 		ST body = templates.getInstanceOf(TemplateConstants.LOGIN_SUCCESS_PAGE);
-		body.add(TemplateConstants.HEAD, jumboHeader.render());
 		body.add("username", userName);
 
 		ST loginPage = templates.getInstanceOf(TemplateConstants.FULL_PAGE);
@@ -60,12 +50,6 @@ public class LoginServlet extends HttpServlet {
 		loginPage.add(TemplateConstants.BODY, body.render());
 
 		return loginPage.render();
-		/*
-		 * return "<table>" + "<tr><td>Logged in as: " + userName + "</td></tr>"
-		 * + "<tr><td align=\"center\"><a href=\"logout\">Log Out</a></td></tr>"
-		 * + "</tr><td><a href=\"business\">View Businesses</a></td></tr>" +
-		 * "</table>";
-		 */
 	}
 
 	private boolean isUserLoggedIn(String userName, String userId) {
