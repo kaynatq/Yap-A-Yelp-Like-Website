@@ -5,11 +5,13 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+
 import yap.sql.MySQLAccessor;
 
 public class YapReview {
 	public static int REVIEW_PER_PAGE = 2;
-	
+
 	private int reviewId;
 	private Double rating;
 	private Date reviewDate;
@@ -17,9 +19,9 @@ public class YapReview {
 	private String userName;
 	private String text;
 	private String businessId;
-	
+
 	public YapReview() {}
-	
+
 	public int getReviewId() {
 		return reviewId;
 	}
@@ -36,12 +38,21 @@ public class YapReview {
 		DecimalFormat twoDForm = new DecimalFormat("#.##");
 		this.rating = Double.valueOf(twoDForm.format(rating));
 	}
+	
+	public String getReviewDate()  {
+		return getReviewDateForDisplay();
+	}
 
-	public String getReviewDate() {
+	public String getReviewDateForDisplay() {
 		DateFormat df = new SimpleDateFormat("MMM dd, yyyy");
 		return df.format(reviewDate);
 	}
-
+	
+	public String getReviewDateForSql() {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return df.format(reviewDate);
+	}
+	
 	public void setReviewDate(Date reviewDate) {
 		this.reviewDate = reviewDate;
 	}
@@ -69,15 +80,15 @@ public class YapReview {
 	public void setBusinessId(String businessId) {
 		this.businessId = businessId;
 	}
-	
+
 	public static ArrayList<YapReview> getReviewsForBusiness(String businessID, Integer start) {
 		ArrayList<YapReview> reviews = new ArrayList<>();
-		
+
 		MySQLAccessor sqlAccessor = new MySQLAccessor();
 		sqlAccessor.InvokeParametrizedQuery(
 				"SELECT * FROM Review WHERE businessID=? LIMIT " + start + "," + YapReview.REVIEW_PER_PAGE,
 				businessID);
-		
+
 		while (sqlAccessor.Next()) {
 			YapReview r = new YapReview();
 			r.setUserId(sqlAccessor.getString("userID"));
@@ -86,19 +97,19 @@ public class YapReview {
 			r.setReviewDate(sqlAccessor.getDate("date"));
 			r.setText(sqlAccessor.getString("text"));
 			r.setBusinessId(sqlAccessor.getString("businessID"));
-			
+
 			reviews.add(r);
-		}	
+		}
 
 		sqlAccessor.Close();
 		return reviews;
 	}
-	
+
 	public static Double getRatingForBusiness(String businessID) {
 		MySQLAccessor sqlAccessor = new MySQLAccessor();
 		double total = 0.0;
 		int count = 0;
-		
+
 		sqlAccessor.InvokeParametrizedQuery(
 				"SELECT rating FROM Review WHERE businessID=?",
 				businessID);
@@ -107,17 +118,17 @@ public class YapReview {
 			total += sqlAccessor.getDouble("rating");
 		}
 		sqlAccessor.Close();
-		
+
 		return count == 0 ? 0.0 : total / count;
 	}
-	
+
 	public static int getReviewCountForBusiness(String businessId) {
 		return MySQLAccessor.getCount(
 				"SELECT count(*) as total from Review where businessID=?",
 				businessId,
 				"total");
 	}
-	
+
 	public static int getReviewCountForQuery(String query) {
 		return MySQLAccessor.getCount(
 				"SELECT count(*) as total from Review where text LIKE ?",
@@ -133,14 +144,27 @@ public class YapReview {
 		this.userName = userName;
 	}
 
+	public boolean InsertToDB() {
+		MySQLAccessor a = new MySQLAccessor();
+
+		HashMap<String, Object> vm = new HashMap<>();
+		vm.put("rating", new Double(this.rating));
+		vm.put("date", this.getReviewDateForSql());
+		vm.put("userID", this.userId);
+		vm.put("text", this.text);
+		vm.put("businessID", this.businessId);
+		
+		return a.InsertIntoTable("Review", vm) == 1;
+	}
+
 	public static ArrayList<YapReview> getReviewsForQuery(String query, int start) {
 		ArrayList<YapReview> reviews = new ArrayList<>();
-		
+
 		MySQLAccessor sqlAccessor = new MySQLAccessor();
 		sqlAccessor.InvokeParametrizedQuery(
 				"SELECT * FROM Review WHERE text LIKE ? LIMIT " + start + "," + YapReview.REVIEW_PER_PAGE,
 				"%" + query + "%");
-		
+
 		while (sqlAccessor.Next()) {
 			YapReview r = new YapReview();
 			r.setUserId(sqlAccessor.getString("userID"));
@@ -149,9 +173,9 @@ public class YapReview {
 			r.setReviewDate(sqlAccessor.getDate("date"));
 			r.setText(sqlAccessor.getString("text"));
 			r.setBusinessId(sqlAccessor.getString("businessID"));
-			
+
 			reviews.add(r);
-		}	
+		}
 
 		sqlAccessor.Close();
 		return reviews;

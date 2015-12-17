@@ -9,7 +9,7 @@
   <!--link href="http://getbootstrap.com/examples/grid/grid.css" rel="stylesheet"-->
   <!--link href="./Resources/custom-bootstrap.css" rel="stylesheet"-->
   <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
-  
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 </head>

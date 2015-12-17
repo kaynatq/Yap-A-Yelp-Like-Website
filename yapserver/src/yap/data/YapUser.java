@@ -20,7 +20,7 @@ public class YapUser {
 		userID = null;
 		password = null;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -44,54 +44,54 @@ public class YapUser {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+
 	public boolean containsUpperLowerDigitSpChar() {
-		
+
 		boolean upperCase = false;
 		boolean lowerCase = false;
 		boolean digit = false;
 		boolean spChar = false;
 		Pattern p; Matcher m;
-		
+
 		p = Pattern.compile("^.*?[A-Z]+");
 		m = p.matcher(this.password);
 		if (m.find()) {
 			upperCase = true;
 		}
-		
+
 		p = Pattern.compile("^.*?[a-z]+");
 		m = p.matcher(this.password);
 		if (m.find()) {
 			lowerCase = true;
 		}
-		
+
 		p = Pattern.compile("^.*?[\\d]+");
 		m = p.matcher(this.password);
 		if (m.find()) {
 			digit = true;
 		}
-		
+
 		p = Pattern.compile("^.*?[^A-Za-z0-9]+");
 		m = p.matcher(this.password);
 		if (m.find()) {
 			spChar = true;
 		}
-		
+
 		if (upperCase && lowerCase && digit && spChar) return true;
 		return false;
 	}
-	
+
 	public boolean isValid() {
 		if (userID == null || userID.isEmpty()) return false;
 		if (name == null || name.isEmpty()) return false;
 		if (password == null || password.isEmpty()) return false;
-		
-		
+
+
 		return true;
 	}
-	
+
 	public static YapUser getUserWithUserId(String userID) {
-		YapUser user = new YapUser();		
+		YapUser user = new YapUser();
 		Connection con = null;
 		try {
 			con = MySQLConnector.getConnection();
@@ -113,19 +113,19 @@ public class YapUser {
 				user.setName(result.getString("name"));
 				user.setPassword(result.getString("password"));
 			}
-			
+
 			con.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return user;
 	}
-	
+
 	public boolean addToDB() throws SQLException {
 		Connection con = null;
-		
+
 		con = MySQLConnector.getConnection();
 		Statement stmt = con.createStatement();
 
@@ -140,16 +140,16 @@ public class YapUser {
 
 		return affected_rows == 1;
 	}
-	
+
 	public static String getUserNameWithUserId(String userId) {
 		MySQLAccessor sqlA = new MySQLAccessor();
-		
+
 		sqlA.InvokeParametrizedQuery("SELECT name from User where userID=?", userId);
 		while (sqlA.Next()) {
 			return sqlA.getString("name");
 		}
 		sqlA.Close();
-		
+
 		return "";
 	}
 }

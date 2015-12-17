@@ -15,109 +15,128 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import yap.sql.MySQLConnector;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+import org.stringtemplate.v4.STRawGroupDir;
+
+import yap.data.YapBusiness;
+import yap.data.YapReview;
+import yap.utils.TemplateConstants;
 
 /**
  * Servlet implementation class BusinessServlet
  */
 @WebServlet("/addreview")
 public class AddReviewServlet extends HttpServlet {
+	private static String TITLE = "..::Yap::AddReview..";
 	
-	private static String getInputFormHtml(String header, String error, String businessID) {
-		String form = "<h1>" + header + "</h1>"
-				+ ServletUtils.getFormattedErrorString(error)
-				+ "<form action=\"addreview\" method=\"post\">"
-				+ "<input type=\"hidden\" name=\"businessID\" value=\"" + businessID + "\">"
-				+ "<table>"
-				+   "<tr>"
-				+     "<th>Write a Review</th>"
-				+     "<td><input type=\"text\" name=\"reviewtext\" ></td>"
-				+   "</tr>"
-				+   "<tr>"
-				+     "<th>Rating</th>"
-				+     "<td><input type=\"number\" name=\"rating\" min=\"1\" max=\"5\"></td>"
-				+   "</tr>"
-				+   "<tr>"
-				+     "<td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"AddReview\"></td>"
-				+   "</tr>"
-				+ "</table>"
-				+ "</form>";
-		
-		return form;
+	private String getAddReviewPageForBusiness(YapBusiness biz, String error) {
+		STGroup templates = new STRawGroupDir("WebContent/Templates", '$', '$');
+
+		ST businessHeader = templates.getInstanceOf(TemplateConstants.BUSINESS_HEADER_PAGE);
+		businessHeader.add("business", biz);
+
+		ST body = templates.getInstanceOf(TemplateConstants.ADD_REVIEW_PAGE);
+		body.add(TemplateConstants.BUSINESS_HEADER_PAGE, businessHeader.render());
+		body.add("has_error", error != null);
+		body.add("error_text", error == null ? "" : error);
+		body.add("businessid", biz.getBusinessID());
+
+		ST addReviewPage = templates.getInstanceOf(TemplateConstants.FULL_PAGE);
+		addReviewPage.add(TemplateConstants.TITLE, AddReviewServlet.TITLE);
+		addReviewPage.add(TemplateConstants.BODY, body.render());
+
+		return addReviewPage.render();
 	}
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String businessId = request.getParameter("businessID");
 		response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-        		"Yap :: Add Review",
-        		getInputFormHtml("Add a review", "", businessId)));
-	}
-
-	private String getBodyForSuccessfulAddReview(String text, double rating, String userID, String businessID) {
-		Connection con = null;
-		Statement stmt = null;
+        
+        HttpSession session = request.getSession();
+		String userId = (String) session.getAttribute("userid");
 		
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		try {
-			con = MySQLConnector.getConnection();
-
-			// create a statement object
-			stmt = con.createStatement();
-			
-			String msqlStatement = "INSERT INTO Review (rating, date, userID, text, businessID) VALUES ("
-			  + "'" + rating + "',"
-			  + "'" + df.format(new Date()) + "',"
-			  + "'" + userID + "',"
-			  + "'" + text + "',"
-			  + "'" + businessID + "')";
-			System.out.println(msqlStatement);
-			
-			// execute an update.
-			stmt.executeUpdate(msqlStatement);
-
-			con.close();
+		if (userId == null) {
+			response.getWriter().print(ServletUtils.getStatusPage(
+					AddReviewServlet.TITLE,
+					"<strong>Error!</strong> Please login to add review",
+					"danger"));
+			return;
 		}
-		catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		String businessId = request.getParameter("businessid");
+		if (businessId == null) {
+			response.getWriter().print(ServletUtils.getStatusPage(
+					AddReviewServlet.TITLE,
+					"<strong>Error!</strong> No business to add review for.",
+					"danger"));
+			return;
 		}
-		return  "<table>" +
-				  "<tr><td>Review added successfully !</td></tr>" +		  
-				"</table>";
+
+		YapBusiness b = YapBusiness.getBusinessWithBusinessId(businessId);
+		if (b == null) {
+			response.getWriter().print(ServletUtils.getStatusPage(
+					AddReviewServlet.TITLE,
+					"<strong>Error!</strong> Could not find business with ID: '" + businessId + "'",
+					"danger"));
+			return;
+		}
+
+        response.getWriter().print(getAddReviewPageForBusiness(b, null));
 	}
-	
+
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
 		
+		
 		HttpSession session = request.getSession();
-		String userID = (String) session.getAttribute("userid");
+		String userId = (String) session.getAttribute("userid");
 		
-		double rating = 0.0;
-		String text = (String) request.getParameter("reviewtext");
-		String ratingParameter = (String) request.getParameter("rating");
-		if (!ratingParameter.isEmpty() && ratingParameter != null)
-			rating = Double.parseDouble(request.getParameter("rating"));
-		String businessID = (String) request.getParameter("businessID");
-		
-		if (text == null || text.isEmpty() || rating > 5 || rating < 1 || rating == 0.0) {
-			if (text == null || text.isEmpty()) {
-			response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yap :: AddReview",
-					getInputFormHtml("Adding review", "Please write a review", businessID)));
-			}
-			else {
-				response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-						"Yap :: AddReview",
-						getInputFormHtml("Adding review", "Please provide a rating between 1 to 5", businessID)));
-			}
-		}		
-		
-		else {
-			response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-					"Yap :: AddReview", getBodyForSuccessfulAddReview(text, rating, userID, businessID)));			
+		if (userId == null) {
+			response.getWriter().print(
+					ServletUtils.getStatusPage(
+							AddReviewServlet.TITLE,
+							"<strong>Error!</strong> Please login to add review.",
+							"danger"));
+			return;
 		}
-	}	
+
+		String text = request.getParameter("reviewtext");
+		String businessId = request.getParameter("businessid");
+		Double rating = null;
+		try {
+			rating = Double.parseDouble(request.getParameter("rating"));
+		} catch (NumberFormatException ne) {
+			ne.printStackTrace();
+		}
+		if (rating == null) {
+			response.getWriter().print(getAddReviewPageForBusiness(
+					YapBusiness.getBusinessWithBusinessId(businessId),
+					"Empty rating is not allowed."));
+			return;
+		}
+		
+
+		YapReview r = new YapReview();
+		r.setBusinessId(businessId);
+		r.setRating(rating);
+		r.setReviewDate(new Date());
+		r.setText(text == null ? "" : text);
+		r.setUserId(userId);
+
+		if (!r.InsertToDB()) {
+			response.getWriter().print(ServletUtils.getStatusPage(
+					AddReviewServlet.TITLE,
+					"<strong> Error! </strong> Failed adding review to database.",
+					"danger"));
+			return;
+		}
+
+		response.getWriter().print(ServletUtils.getStatusPage(
+				AddReviewServlet.TITLE,
+				"<strong> Success! </strong> Added review to database.",
+				"success"));
+	}
 }

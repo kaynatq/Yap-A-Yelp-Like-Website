@@ -18,15 +18,15 @@ public class RootServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
-		
+
 		STGroup templates = new STRawGroupDir("WebContent/Templates", '$', '$');
-		
+
 		ST body = templates.getInstanceOf(TemplateConstants.ROOT_BODY_PAGE);
-		
+
 		ST rootPage = templates.getInstanceOf(TemplateConstants.FULL_PAGE);
 		rootPage.add(TemplateConstants.TITLE, "..::Yap::Home..");
 		rootPage.add(TemplateConstants.BODY, body.render());
-		
+
 		response.getWriter().append(rootPage.render());
 	}
 }

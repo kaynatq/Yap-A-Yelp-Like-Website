@@ -6,9 +6,9 @@ function validateLoginForm() {
         alert("Name must be filled out");
         return false;
     }
-    
+
     var password = document.forms["login_form"]["password"].value;
-    if (userid == null || password == "") {
+    if (password == null || password == "") {
         document.getElementById("password_input").className = "form-group has-error"
         alert("Empty password is not allowed");
         return false;

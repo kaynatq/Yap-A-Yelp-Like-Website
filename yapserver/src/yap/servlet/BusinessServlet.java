@@ -30,23 +30,23 @@ import yap.utils.TemplateConstants;
 public class BusinessServlet extends HttpServlet {
 	private static String viewAllBusiness(ArrayList<YapBusiness> businesses) {
 		STGroup templates = new STRawGroupDir("WebContent/Templates", '$', '$');
-		
+
 		ST body = templates.getInstanceOf(TemplateConstants.BUSINESS_LIST_PAGE);
 		body.add("businesses", businesses);
-		
+
 		ST businessListPage = templates.getInstanceOf(TemplateConstants.FULL_PAGE);
 		businessListPage.add(TemplateConstants.TITLE, "..::Yap::Business..");
 		businessListPage.add(TemplateConstants.BODY, body.render());
-		
+
 		return businessListPage.render();
 	}
-	
+
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
-		
-		String sortby = request.getParameter("sortby");		
+
+		String sortby = request.getParameter("sortby");
 		ArrayList<YapBusiness> businesses = YapBusiness.getBusinesses(sortby);
 		for (YapBusiness b : businesses) {
 			b.setRating(YapReview.getRatingForBusiness(b.getBusinessID()));

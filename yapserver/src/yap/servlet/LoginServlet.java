@@ -86,7 +86,7 @@ public class LoginServlet extends HttpServlet {
 
 		String userID = request.getParameter("userid");
 		String password = request.getParameter("password");
-		
+
 		if (userID == null || userID.isEmpty() || password == null || password.isEmpty()) {
 			response.getWriter().print(getBodyForLoginForm("Empty Fields are not allowed."));
 			return;

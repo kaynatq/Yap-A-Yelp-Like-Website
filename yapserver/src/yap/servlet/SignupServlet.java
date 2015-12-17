@@ -38,10 +38,10 @@ public class SignupServlet extends HttpServlet {
 				+   "</tr>"
 				+ "</table>"
 				+ "</form>";
-		
+
 		return form;
 	}
-	
+
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
@@ -50,30 +50,30 @@ public class SignupServlet extends HttpServlet {
         		"Yap :: Signup",
         		getInputFormHtml("Signup for Yap", "")));
 	}
-	
+
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
-        
-        YapUser newUser = new YapUser();        
-        
+
+        YapUser newUser = new YapUser();
+
         newUser.setUserID(request.getParameter("userid"));
         newUser.setName(request.getParameter("username"));
         newUser.setPassword(request.getParameter("password"));
-        
+
         if (!newUser.isValid()) {
         	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
         			"Yap :: Signup", getInputFormHtml("Signup for Yap", "Empty fields are not allowed.")));
         	return;
         }
-        
+
         if (newUser.getPassword().length() < 8) {
         	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
         			"Yap :: Signup", getInputFormHtml("Signup for Yap", "Password should be minimum 8 characters.")));
         	return;
         }
-        
+
         if (!newUser.containsUpperLowerDigitSpChar()) {
         	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
         			"Yap :: Signup", getInputFormHtml("Signup for Yap", "Password should contain at least "
@@ -81,7 +81,7 @@ public class SignupServlet extends HttpServlet {
         	return;
         }
         String body = "";
-        
+
         try {
         	if (newUser.addToDB()) {
         		body = "Successfully added '" + newUser.getName() + "' as a Yap user."
@@ -91,7 +91,7 @@ public class SignupServlet extends HttpServlet {
 		} catch (SQLException e) {
 			body = ServletUtils.getFormattedErrorString("Error adding user: " + e.getMessage());
 		}
-        
+
         response.getWriter().println(ServletUtils.getHtmlForTitleAndBody("Yap :: Signup", body));
 	}
 

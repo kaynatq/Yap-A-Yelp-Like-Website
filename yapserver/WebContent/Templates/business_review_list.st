@@ -43,7 +43,7 @@ $business_header$
 			  </li>
 			  $if(has_next)$
         <li class="next">
-          <a href="$page_info.nextPageUrl$"> Next <span aria-hidden="true">&rarr;</span></a>  
+          <a href="$page_info.nextPageUrl$"> Next <span aria-hidden="true">&rarr;</span></a>
         $else$
         <li class="next disabled">
           <span aria-hidden="true"> Next &rarr;</span>
@@ -51,9 +51,9 @@ $business_header$
 				</li>
 			</ul>
 		</nav>
-  </div>  
+  </div>
 </div>
 
 <div align="center">
-  <a class="btn btn-primary" href="addreview">Add Review</a>
+  <a class="btn btn-primary" href="addreview?businessid=$bizid$">Add Review</a>
 </div>

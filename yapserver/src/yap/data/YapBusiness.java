@@ -15,7 +15,7 @@ public class YapBusiness {
 	private double latitude;
 	private double longitude;
 	private double rating;
-	
+
 	/**
 	 * Default Constructor
 	 */
@@ -28,11 +28,11 @@ public class YapBusiness {
 		latitude = 0.0;
 		longitude = 0.0;
 	}
-	
+
 	public String getBusinessID() {
 		return businessID;
 	}
-	
+
 	public void setBusinessID(String businessID) {
 		this.businessID = businessID;
 	}
@@ -52,7 +52,7 @@ public class YapBusiness {
 	public void setCity(String city) {
 		this.city = city;
 	}
-	
+
 	public String getState() {
 		return state;
 	}
@@ -60,7 +60,7 @@ public class YapBusiness {
 	public void setState(String state) {
 		this.state = state;
 	}
-	
+
 	public String getNeighborhoods() {
 		return neighborhoods;
 	}
@@ -76,11 +76,11 @@ public class YapBusiness {
 	public void setLatitude(double latitude) {
 		this.latitude = latitude;
 	}
-	
+
 	public double getLongitude() {
 		return longitude;
 	}
-	
+
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
@@ -93,40 +93,41 @@ public class YapBusiness {
 		DecimalFormat twoDForm = new DecimalFormat("#.#");
 		this.rating = Double.valueOf(twoDForm.format(rating));
 	}
-	
+
 	public static YapBusiness getBusinessWithBusinessId(String businessId) {
 		YapBusiness b = null;
-		
+
 		MySQLAccessor sqlA = new MySQLAccessor();
-		sqlA.InvokeParametrizedQuery("SELECT * from Business WHERE businessID=?", businessId);		
-		
+		sqlA.InvokeParametrizedQuery("SELECT * from Business WHERE businessID=?", businessId);
+
 		while (sqlA.Next()) {
 			b = new YapBusiness();
+			b.setBusinessID(businessId);
 			b.setName(sqlA.getString("name"));
 			b.setCity(sqlA.getString("city"));
 			b.setState(sqlA.getString("state"));
 			b.setLatitude(sqlA.getDouble("latitude"));
 			b.setLongitude(sqlA.getDouble("longitude"));
 			b.setNeighborhoods(sqlA.getString("neighborhoods"));
-			
+
 			b.setRating(YapReview.getRatingForBusiness(businessId));
-			
+
 			break;
 		}
-		
+
 		sqlA.Close();
-		
+
 		return b;
 	}
-	
+
 	public static ArrayList<YapBusiness> getBusinesses(String sortby) {
 		ArrayList<YapBusiness> businesses = new ArrayList<>();
-		
+
 		String query = "SELECT * FROM Business";
 		if (sortby != null) {
 			query += " ORDER BY " + sortby;
 		}
-		
+
 		MySQLAccessor sqlAccessor = new MySQLAccessor();
 		sqlAccessor.InvokeQuery(query);
 		while (sqlAccessor.Next()) {
@@ -140,8 +141,8 @@ public class YapBusiness {
 			business.setLatitude(sqlAccessor.getDouble("latitude"));
 			businesses.add(business);
 		}
-		sqlAccessor.Close();		
-		
+		sqlAccessor.Close();
+
 		return businesses;
 	}
 
