@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -123,22 +124,15 @@ public class YapUser {
 		return user;
 	}
 
-	public boolean addToDB() throws SQLException {
-		Connection con = null;
-
-		con = MySQLConnector.getConnection();
-		Statement stmt = con.createStatement();
-
-		// execute an update.
-		int affected_rows = stmt.executeUpdate("INSERT INTO User (userID, name, password) VALUES ("
-		  + "'" + getUserID() + "', "
-		  +	"'"	+ getName() + "', "
-		  + "'" + getPassword() + "' "
-		  + ")");
-
-		con.close();
-
-		return affected_rows == 1;
+	public boolean addToDB() {
+		MySQLAccessor a = new MySQLAccessor();
+		
+		HashMap<String, Object> vm = new HashMap<>();
+		vm.put("userID", getUserID());
+		vm.put("name", getName());
+		vm.put("password", getPassword());
+		
+		return a.InsertIntoTable("User", vm) == 1;
 	}
 
 	public static String getUserNameWithUserId(String userId) {

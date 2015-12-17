@@ -19,7 +19,9 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STRawGroupDir;
 
+import yap.data.YapBusiness;
 import yap.sql.MySQLConnector;
+import yap.utils.SessionConstants;
 import yap.utils.TemplateConstants;
 
 /**
@@ -27,13 +29,17 @@ import yap.utils.TemplateConstants;
  */
 @WebServlet("/addbusiness")
 public class AddBusinessServlet extends HttpServlet {
-	private static String getInputFormHtml() {
+	private static String TITLE = "..::Yap::AddBusiness..";
+
+	private static String getInputFormHtml(String error) {
 		STGroup templates = new STRawGroupDir("WebContent/Templates", '$', '$');
 
 		ST body = templates.getInstanceOf(TemplateConstants.ADD_BUSINESS_PAGE);
+		body.add("has_error", error != null);
+		body.add("error_text", error == null ? "" : error);
 
 		ST businessListPage = templates.getInstanceOf(TemplateConstants.FULL_PAGE);
-		businessListPage.add(TemplateConstants.TITLE, "..::Yap::Business..");
+		businessListPage.add(TemplateConstants.TITLE, AddBusinessServlet.TITLE);
 		businessListPage.add(TemplateConstants.BODY, body.render());
 
 		return businessListPage.render();
@@ -42,77 +48,86 @@ public class AddBusinessServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().print(getInputFormHtml());
+        
+        HttpSession session = request.getSession();
+		String userName = (String) session.getAttribute(SessionConstants.USERNAME);
+		String userId = (String) session.getAttribute(SessionConstants.USERID);
+		
+		if (ServletUtils.isUserLoggedIn(userName, userId)) {
+			response.getWriter().print(getInputFormHtml(null));
+		} else {
+			response.getWriter().print(ServletUtils.getStatusPage(
+					AddBusinessServlet.TITLE,
+					"You must be logged in to add a new business.",
+					"danger"));
+		}
 	}
-
-	private String getBodyForSuccessfulAddBusiness(String businessID, String businessName,
-			String city, String state, double latitude, double longitude, String neighborhoods) {
-		Connection con = null;
-		Statement stmt = null;
-
-		try {
-			con = MySQLConnector.getConnection();
-
-			// create a statement object
-			stmt = con.createStatement();
-
-			String msqlStatement = "INSERT INTO Business VALUES ("
-			  + "'" + businessID + "',"
-			  + "'" + businessName + "',"
-			  + "'" + city + "',"
-			  + "'" + state + "',"
-			  + "'" + latitude + "',"
-			  + "'" + longitude + "',"
-			  + "'" + neighborhoods + "')";
-
-			// execute an update.
-			stmt.executeUpdate(msqlStatement);
-
-			con.close();
+	
+	private boolean IsValidLatLng(Double latitude, Double longitude) {
+		if (latitude > -90.0 && latitude < 90.0 && longitude > -180.0 && longitude < 180.0) {
+			return true;
 		}
-		catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return  "<table>" +
-				  "<tr><td>Business added successfully !</td></tr>" +
-				"</table>";
+		return false;
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
-
-		double latitude = 0.0, longitude = 0.0;
-		String businessID = (String) request.getParameter("businessid");
-		String businessName = (String) request.getParameter("businessname");
-		String city = (String) request.getParameter("city");
-		String state = (String) request.getParameter("state");
-		if(businessID == null || businessID.isEmpty() ||
-				businessName == null || businessName.isEmpty() ||
-				city == null || city.isEmpty() ||
-				state == null || state.isEmpty()) {
-			response.getWriter().println(ServletUtils.getFormattedErrorString(
-					"Please provide the empty fields"));
-			return;
+		
+		String error = null;
+		String businessName = request.getParameter("businessname");
+		String city = request.getParameter("city");
+		String state = request.getParameter("state");
+		
+		if (businessName == null || businessName.isEmpty()
+				|| city == null || city.isEmpty()
+				|| state == null || state.isEmpty()) {
+			error = "Please provide non-empty (name, city, state)";
 		}
+		
+		Double latitude = 0.0, longitude = 0.0;
 		try{
-		latitude = Double.parseDouble(request.getParameter("latitude"));
-		longitude = Double.parseDouble(request.getParameter("longitude"));
-		}catch(NumberFormatException ne){
-			response.getWriter().println(ServletUtils.getFormattedErrorString(
-					"Please provide valid longitude and latitude"));
-			return;
+			latitude = Double.parseDouble(request.getParameter("latitude"));
+			longitude = Double.parseDouble(request.getParameter("longitude"));
+			
+			if (!IsValidLatLng(latitude, longitude)) {
+				throw new NumberFormatException();
+			}
+		} catch(NumberFormatException ne) {
+			error = "Please provide a valid (lat, lng)";
 		}
-		String neighborhoods = (String) request.getParameter("neighborhoods");
-
+		
+		String neighborhoods = request.getParameter("neighborhoods");
 		if (neighborhoods == null) {
 			neighborhoods = "";
 		}
-
-		response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-				"Yap :: AddBusiness", getBodyForSuccessfulAddBusiness(businessID, businessName, city, state, latitude, longitude, neighborhoods)));
-
+		
+		if (error != null) {
+			// Re-Generate the form with error.
+			response.getWriter().println(getInputFormHtml(error));
+			return;
+		}
+		
+		YapBusiness b = new YapBusiness();
+		
+		b.setName(businessName);
+		b.setCity(city);
+		b.setState(state);
+		b.setLatitude(latitude);
+		b.setLongitude(longitude);
+		b.setNeighborhoods(neighborhoods);
+		
+		if (b.InsertToDB()) {
+			response.getWriter().println(ServletUtils.getStatusPage(
+					AddBusinessServlet.TITLE,
+					"<strong>Success!</strong> Successfully added business to database.",
+					"success"));
+		} else {
+			response.getWriter().println(ServletUtils.getStatusPage(
+					AddBusinessServlet.TITLE,
+					String.format("<strong>Error!</strong> Failed to add business '%s' to database.", businessName),
+					"danger"));
+		}
 	}
 }

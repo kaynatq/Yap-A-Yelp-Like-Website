@@ -55,6 +55,8 @@ public class MySQLAccessor {
 		} catch (SQLException e) {
 			error = e.getMessage();
 			e.printStackTrace();
+		} finally {
+			Close();
 		}
 		return 0;
 	}

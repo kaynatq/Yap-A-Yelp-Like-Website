@@ -50,16 +50,7 @@ public class LoginServlet extends HttpServlet {
 		loginPage.add(TemplateConstants.BODY, body.render());
 
 		return loginPage.render();
-	}
-
-	private boolean isUserLoggedIn(String userName, String userId) {
-		if (userId == null || userId.isEmpty())
-			return false;
-		if (userName == null || userName.isEmpty())
-			return false;
-
-		return true;
-	}
+	}	
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -71,7 +62,7 @@ public class LoginServlet extends HttpServlet {
 		String userName = (String) session.getAttribute(SessionConstants.USERNAME);
 		String userID = (String) session.getAttribute(SessionConstants.USERID);
 
-		if (!isUserLoggedIn(userName, userID)) {
+		if (!ServletUtils.isUserLoggedIn(userName, userID)) {
 			response.getWriter().print(getBodyForLoginForm(null));
 		} else {
 			response.getWriter().print(getBodyForSuccessfulLogin(userName));

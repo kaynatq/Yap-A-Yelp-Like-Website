@@ -2,6 +2,7 @@ package yap.data;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import yap.sql.MySQLAccessor;
 
@@ -12,9 +13,9 @@ public class YapBusiness {
 	private String city;
 	private String state;
 	private String neighborhoods;
-	private double latitude;
-	private double longitude;
-	private double rating;
+	private Double latitude;
+	private Double longitude;
+	private Double rating;
 
 	/**
 	 * Default Constructor
@@ -144,6 +145,20 @@ public class YapBusiness {
 		sqlAccessor.Close();
 
 		return businesses;
+	}
+
+	public boolean InsertToDB() {
+		MySQLAccessor a = new MySQLAccessor();
+		HashMap<String, Object> vm = new HashMap<>();
+		
+		vm.put("name", this.name);
+		vm.put("city", this.city);
+		vm.put("state", this.state);
+		vm.put("latitude", this.latitude);
+		vm.put("longitude", this.longitude);
+		vm.put("neighborhoods", this.neighborhoods);
+		
+		return a.InsertIntoTable("Business", vm) == 1;
 	}
 
 }
