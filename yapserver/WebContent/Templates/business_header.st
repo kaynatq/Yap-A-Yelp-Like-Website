@@ -3,7 +3,7 @@
   function initializeMap() {
     var mapCenter = {lat: $business.latitude$, lng: $business.longitude$};
     var mapOptions = {
-    	scrollwheel: false,
+      scrollwheel: false,
       center: mapCenter,
       zoom: 8,
       mapTypeId: google.maps.MapTypeId.ROADMAP

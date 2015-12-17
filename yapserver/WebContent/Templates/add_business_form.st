@@ -1,6 +1,6 @@
 
 <div class="panel panel-primary">
-  <div class="panel-heading">Login</div>
+  <div class="panel-heading">Add Business</div>
   <div class="panel-body">
     $if(has_error)$
     <div class="alert alert-danger">

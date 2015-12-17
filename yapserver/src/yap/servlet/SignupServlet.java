@@ -9,46 +9,41 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+import org.stringtemplate.v4.STRawGroupDir;
+
 import yap.data.YapUser;
+import yap.utils.TemplateConstants;
 
 /**
- * Servlet implementation class LoginServlet
+ * Servlet implementation class SignUpServlet
  */
 @WebServlet("/signup")
 public class SignupServlet extends HttpServlet {
-	private static String getInputFormHtml(String header, String error) {
-		String form = "<h1>" + header + "</h1>"
-				+ ServletUtils.getFormattedErrorString(error)
-				+ "<form action=\"signup\" method=\"post\">"
-				+ "<table>"
-				+   "<tr>"
-				+     "<th>User Id</th>"
-				+     "<td><input type=\"text\" name=\"userid\" ></td>"
-				+   "</tr>"
-				+   "<tr>"
-				+     "<th>Name</th>"
-				+     "<td><input type=\"text\" name=\"username\" ></td>"
-				+   "</tr>"
-				+   "<tr>"
-				+     "<th>Password</th>"
-				+     "<td><input type=\"password\" name=\"password\" ></td>"
-				+   "</tr>"
-				+   "<tr>"
-				+     "<td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Signup\"></td>"
-				+   "</tr>"
-				+ "</table>"
-				+ "</form>";
+	private static String getBodyForSignUpForm(String error) {
+		STGroup templates = new STRawGroupDir("WebContent/Templates", '$', '$');
 
-		return form;
+		ST body = templates.getInstanceOf(TemplateConstants.SIGNUP_FORM_PAGE);
+		if (error == null) {
+			body.add("has_error", false);
+		} else {
+			body.add("has_error", true);
+			body.add("error_text", error);
+		}
+
+		ST signupPage = templates.getInstanceOf(TemplateConstants.FULL_PAGE);
+		signupPage.add(TemplateConstants.TITLE, "..::Yap::SignUp..");
+		signupPage.add(TemplateConstants.BODY, body.render());
+
+		return signupPage.render();
 	}
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-        		"Yap :: Signup",
-        		getInputFormHtml("Signup for Yap", "")));
+        response.getWriter().print(getBodyForSignUpForm(null));
 	}
 
 	@Override
@@ -63,36 +58,35 @@ public class SignupServlet extends HttpServlet {
         newUser.setPassword(request.getParameter("password"));
 
         if (!newUser.isValid()) {
-        	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-        			"Yap :: Signup", getInputFormHtml("Signup for Yap", "Empty fields are not allowed.")));
+        	response.getWriter().print(getBodyForSignUpForm("Empty fields are not allowed."));
         	return;
         }
 
-        if (newUser.getPassword().length() < 8) {
-        	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-        			"Yap :: Signup", getInputFormHtml("Signup for Yap", "Password should be minimum 8 characters.")));
+        if (newUser.getPassword().length() < 6) {
+        	response.getWriter().print(getBodyForSignUpForm("Password should be minimum 6 characters."));
         	return;
         }
 
         if (!newUser.containsUpperLowerDigitSpChar()) {
-        	response.getWriter().println(ServletUtils.getHtmlForTitleAndBody(
-        			"Yap :: Signup", getInputFormHtml("Signup for Yap", "Password should contain at least "
-        					+ "1 uppercase letter, 1 lowercase letter, 1 digit and 1 special character. ")));
+        	response.getWriter().print(getBodyForSignUpForm("Password should contain at least "
+        					+ "1 uppercase letter, 1 lowercase letter, 1 digit or 1 special character. "));
         	return;
         }
         String body = "";
 
         try {
         	if (newUser.addToDB()) {
-        		body = "Successfully added '" + newUser.getName() + "' as a Yap user."
-        				+ "<br>"
-        				+ "You can try logging in now.";
+        		body = "Successfully added '" + newUser.getName() + "' as a Yap user. You can try logging in now.";
+                response.getWriter().print(ServletUtils.getStatusPage(
+        				"..::Yap :: Signup::..",
+        				"<strong> Success! </strong>" + body,
+        				"success"));
+                return;
         	}
 		} catch (SQLException e) {
-			body = ServletUtils.getFormattedErrorString("Error adding user: " + e.getMessage());
+			response.getWriter().print(getBodyForSignUpForm("Error adding user: duplicate user found"));
+			return;
 		}
-
-        response.getWriter().println(ServletUtils.getHtmlForTitleAndBody("Yap :: Signup", body));
 	}
 
 }

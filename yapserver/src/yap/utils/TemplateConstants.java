@@ -9,6 +9,8 @@ public class TemplateConstants {
 	// Servlet specific template file names.
 	public static final String ROOT_BODY_PAGE = "root_body";
 
+	public static final String SIGNUP_FORM_PAGE = "signup_form";
+	
 	public static final String LOGIN_FORM_PAGE = "login_form";
 	public static final String LOGIN_SUCCESS_PAGE = "login_success";
 

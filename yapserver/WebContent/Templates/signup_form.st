@@ -1,6 +1,6 @@
 <div class="panel panel-primary">
   <div class="panel-heading">
-    Login
+    Sign Up
   </div>
   <div class="panel-body">
     $if(has_error)$
@@ -14,6 +14,12 @@
         <label class="col-sm-2 control-label">User ID</label>
         <div class="col-sm-4">
           <input class="form-control" id="userid" name="userid" type="text">
+        </div>
+      </div>
+        <div class="form-group">
+        <label class="col-sm-2 control-label">Name</label>
+        <div class="col-sm-4">
+          <input class="form-control" id="username" name="username" type="text">
         </div>
       </div>
       <div class="form-group">
